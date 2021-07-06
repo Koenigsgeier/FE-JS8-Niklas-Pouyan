@@ -1,0 +1,145 @@
+/**
+ * JavaScricpt Shopping Cart
+ */
+ var products = [{
+    name: "Rose",
+    image: "Images/rose.jpg",
+    price: 10,
+    qtty: 1
+}, {
+    name: "Tulip",
+    image: "Images/tulip.jpg",
+    price: 7,
+    qtty: 1
+}, {
+    name: "Hortensia",
+    image: "Images/fhortensia.jpg",
+    price: 15,
+    qtty: 1
+}];
+
+for (let val of products) {
+    document.getElementsByClassName("products")[0].innerHTML += `<div class="product col-12 col-md-6 col-lg-4 text-center fw-bold">
+    <p class="product-title h3 m-3">${val.name}</p>
+    <img class="product-image" src="${val.image}" width="200" height="200">
+    <div class="product-details">
+        <p class="product-price h4 m-3">${val.price} €</p>
+        <button class="btn btn-primary product-button" type="button">ADD TO CART</button>
+    </div>
+    </div>
+    `
+}
+
+var cart = [];
+
+function addToCart(product, index) {
+    if (cart.length == 0) {
+        cart.push(product);
+    } else if (cart.find((val) => val.name == product.name)) {
+        cart[index].qtty++;
+    } else {
+        cart.push(product);
+    }
+    console.table(cart);
+    createRows();
+    Total();
+    totalQtty();
+}
+
+
+let btns = document.getElementsByClassName("product-button");
+
+for (let i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function() {
+        addToCart(products[i], i);
+    })
+}
+
+function createRows() {
+    var result = "";
+
+    for (let val of cart) {
+        result += `
+    <div class="cart-row row d-flex">
+        <div class="cart-item col-6 my-3 ">
+            <img class="cart-item-image" src="${val.image}" width="100" height="100">
+            <span class="cart-item-title h5 ">${val.name}</span>
+        </div>
+        
+        <span class="cart-price col-3 h4 my-3">${val.price} €</span>
+       
+        <div class="cart-qtty-action col-3 d-flex">            
+            <i class="minus fa fa-minus-circle my-auto" ></i>            
+            <div class="cart-quantity p-4 h4">${val.qtty}</div>            
+            <i class="plus fa fa-plus-circle my-auto"></i>         
+            <button class="del btn btn-danger rounded-circle  my-auto ms-3 fw-bold" type="button"> X </button>            
+        </div>
+    </div>
+    `;
+
+    }
+    document.getElementById("cart-items").innerHTML = result;
+
+    let plus = document.getElementsByClassName("plus");
+    let minus = document.getElementsByClassName("minus");
+    let del = document.getElementsByClassName("del");
+
+    for (let i = 0; i < plus.length; i++) {
+        plus[i].addEventListener("click", function() {
+            plusQtty(i);
+            Total();
+            totalQtty();
+        });
+        minus[i].addEventListener("click", function() {
+            minusQtty(i);
+            Total();
+            totalQtty();
+        });
+        del[i].addEventListener("click", function() {
+            deleteItem(i);
+            Total();
+            totalQtty();
+        });
+    }
+}
+
+function Total() {
+    let total = 0;
+    for (let val of cart) {
+        total = total + (val.price * val.qtty);
+        if (total>=100) {
+        total = total * 0.9
+        document.getElementById("discount").innerHTML = "Your discount is 10%"
+        }
+    }
+    document.getElementById("price").innerHTML = total.toFixed(2) + " €";
+}
+
+function plusQtty(i) {
+    cart[i].qtty++;
+    document.getElementsByClassName("cart-quantity")[i].innerHTML = cart[i].qtty;
+}
+
+function minusQtty(i) {
+    if (cart[i].qtty == 1) {
+        cart.splice(i, 1);
+        createRows();
+    } else {
+        cart[i].qtty -= 1;
+        document.getElementsByClassName("cart-quantity")[i].innerHTML = cart[i].qtty;
+    }
+}
+
+function deleteItem(i) {
+    cart[i].qtty = 1;
+    cart.splice(i, 1);
+    createRows();
+}
+
+function totalQtty() {
+    let toast = 0;
+    for (let val of cart) {
+        toast = toast + val.qtty;
+    }
+    document.getElementById("qttyTotal").innerHTML = `Total amount of items: ` + toast;
+}
